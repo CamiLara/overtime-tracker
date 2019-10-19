@@ -6,16 +6,24 @@ var Datastore = require('nedb');
 export default class TogglImporter {
     constructor() {
         this.db = new Datastore({ filename: 'toggl.db', autoload: true })
+        this.db.ensureIndex({ fieldName: 'id', unique: true }, function (err) {
+        });
     }
 
     async import() {
-        const client = new togglClient();
-        const allTimeData = await client.fetchPagedTimeEntries(new Date(2019, 0, 1), new Date());
-        debugger;
-        this.db.insert(allTimeData, function (err, newDocs) {
-            // Two documents were inserted in the database
-            // newDocs is an array with these documents, augmented with their _id
-        });
+        return new Promise(async resolve => {
+            const client = new togglClient();
+            const allTimeData = await client.fetchPagedTimeEntries(new Date(2007, 9, 1), new Date());
+
+            const allTimeFormattedData = _(allTimeData).map(x => ({
+                ...x,
+                start: new Date(x.start),
+                end: new Date(x.end)
+            })).value();
+            this.db.insert(allTimeFormattedData, function (err, newDocs) {
+                resolve(newDocs);
+            });
+        })
     }
 
     get() {
@@ -24,5 +32,13 @@ export default class TogglImporter {
                 resolve(docs);
             });
         })
+    }
+
+    reset() {
+        return new Promise(resolve => {
+            this.db.remove({}, { multi: true }, function (err, numRemoved) {
+                resolve(numRemoved);
+            })
+        });
     }
 }

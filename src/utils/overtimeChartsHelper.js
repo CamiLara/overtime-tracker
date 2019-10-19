@@ -1,5 +1,8 @@
 import _ from 'lodash';
 import togglClient from './togglClient';
+import moment from 'moment';
+var Datastore = require('nedb');
+
 
 function formatMonth(dateString) {
     var monthNames = [
@@ -25,84 +28,128 @@ function formatMonth(dateString) {
     return monthNames[monthIndex];
 }
 
-export async function getMonthlyStats() {
-    const client = new togglClient();
-    var endDate = new Date();
+const partition = (array, isValid) => {
+    return array.reduce(([pass, fail], elem) => {
+        return isValid(elem) ? [[...pass, elem], fail] : [pass, [...fail, elem]];
+    }, [[], []]);
+}
 
-    // This month
-    const data = await client.fetchPagedTimeEntries(new Date(new Date().getFullYear(), new Date().getMonth(), 1), endDate)
+export function getWeeklyStats() {
+    return new Promise(resolve => {
+        const from_date = moment().subtract(1, 'weeks').startOf('isoWeek').toDate();
+        const to_date = moment().endOf('isoWeek').toDate();
 
-    const sourceData = _(data).groupBy(x => {
-        const tempDate = new Date(x.start);
-        return new Date(
-            tempDate.getUTCFullYear(),
-            tempDate.getUTCMonth(),
-            tempDate.getDay()
-        );
+
+        const db = new Datastore({ filename: 'toggl.db', autoload: true });
+        const data = db.find({ start: { $gte: from_date }, end: { $lte: to_date } }, function (err, data) {
+            const startOfWeek = moment().startOf('isoWeek').toDate();
+            const partitioned = partition(data, x => moment(x.start).isBefore(startOfWeek));
+
+            const sourceData = _(partitioned[1])
+                .orderBy(y => new Date(y.start))
+                .groupBy(x => {
+                    const tempDate = new Date(x.start);
+                    return new Date(
+                        tempDate.getUTCFullYear(),
+                        tempDate.getUTCMonth(),
+                        tempDate.getDate()
+                    );
+                });
+
+            var chartData = {
+                labels: sourceData.map((x, k) => new Date(k)).orderBy(x => x).value(),
+                series: [sourceData.map((x, i) => _(x).orderBy(y => new Date(y.start)).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
+            };
+
+            resolve({
+                chartData: chartData,
+                totalLastWeek: _(partitioned[0]).map(x => x.dur).sum() / (1000 * 60 * 60),
+                totalThisWeek: _(partitioned[1]).map(x => x.dur).sum() / (1000 * 60 * 60)
+            });
+        })
     });
+}
 
-    var chartData = {
-        labels: sourceData.map((x, k) => new Date(k).getDay()).orderBy(x => x).value(),
-        series: [sourceData.map((x, i) => _(x).orderBy(y => new Date(y.start)).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
-    };
+export function getMonthlyStats() {
 
-    return chartData;
+    return new Promise(resolve => {
+        var endDate = new Date();
+        const db = new Datastore({ filename: 'toggl.db', autoload: true });
+        const data = db.find({ start: { $gt: new Date(endDate.getUTCFullYear(), endDate.getUTCMonth(), 1) } }, function (err, data) {
+            const sourceData = _(data).groupBy(x => {
+                const tempDate = new Date(x.start);
+                return new Date(
+                    tempDate.getUTCFullYear(),
+                    tempDate.getUTCMonth(),
+                    tempDate.getDate()
+                );
+            });
+
+            var chartData = {
+                labels: sourceData.map((x, k) => new Date(k).getDate()).orderBy(x => x).value(),
+                series: [sourceData.map((x, i) => _(x).orderBy(y => new Date(y.start)).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
+            };
+
+            resolve(chartData);
+        })
+    });
 }
 
 export async function getYearlyStats() {
-    const client = new togglClient();
-    var endDate = new Date();
+    return new Promise(resolve => {
+        var endDate = new Date();
+        const db = new Datastore({ filename: 'toggl.db', autoload: true });
+        db.find({ start: { $gt: new Date(endDate.getUTCFullYear(), 0, 1) } }, function (err, data) {
+            const sourceData = _(data)
+                .orderBy(x => new Date(x.start))
+                .groupBy(x => {
+                    const tempDate = new Date(x.start);
+                    return new Date(tempDate.getUTCFullYear(), tempDate.getUTCMonth());
+                });
 
-    // This year
-    const data = await client.fetchPagedTimeEntries(new Date(new Date().getFullYear(), 0, 1), endDate);
-    const sourceData = _(data)
-        .orderBy(x => new Date(x.start))
-        .groupBy(x => {
-            const tempDate = new Date(x.start);
-            return new Date(tempDate.getUTCFullYear(), tempDate.getUTCMonth());
-        });
+            var chartData = {
+                labels: sourceData.map((x, k) => new Date(k)).value(),
+                series: [sourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
+            };
 
-    var chartData = {
-        labels: sourceData.map((x, k) => formatMonth(new Date(k))).value(),
-        series: [sourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
-    };
-
-    return chartData;
+            resolve(chartData);
+        })
+    });
 }
 
 export async function getAllStats() {
-    const client = new togglClient();
-    var endDate = new Date();
+    return new Promise(resolve => {
 
-    // All time
-    var allTimeData = await client.fetchPagedTimeEntries(
-        new Date(2018, 0, 1),
-        endDate
-    );
+        // All time
+        const db = new Datastore({ filename: 'toggl.db', autoload: true });
+        db.find({ start: { $gt: new Date(2007, 0, 1) } }, function (err, data) {
 
-    const allTimeSourceData = _(allTimeData)
-        .orderBy(x => new Date(x.start))
-        .groupBy(x => {
-            const tempDate = new Date(x.start);
-            return new Date(tempDate.getUTCFullYear(), tempDate.getUTCMonth());
-        });
+            const allTimeSourceData = _(data)
+                .orderBy(x => new Date(x.start))
+                .groupBy(x => {
+                    const tempDate = new Date(x.start);
+                    return 'Q' + moment(tempDate).quarter() + ' ' + tempDate.getUTCFullYear()
+                });
 
-    var chartData = {
-        labels: allTimeSourceData.map((x, k) => formatMonth(new Date(k))).value(),
-        series: [allTimeSourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
-    };
+            var chartData = {
+                labels: allTimeSourceData.map((x, k) => k).value(),
+                series: [allTimeSourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
+            };
 
-    return chartData;
+            resolve(chartData);
+        })
+    });
 }
 
 export async function getLatestEntries() {
-    const client = new togglClient();
+    return new Promise(resolve => {
+        var endDate = new Date();
+        var startDate = new Date();
+        startDate.setDate(endDate.getDate() - 7);
 
-    // Latest entries
-    var endDate = new Date();
-    var startDate = new Date();
-    startDate.setDate(endDate.getDate() - 7);
-    const data = await client.fetchPagedTimeEntries(startDate, endDate);
-
-    return _(data).orderBy(x => new Date(x.start)).reverse().value();
+        const db = new Datastore({ filename: 'toggl.db', autoload: true });
+        db.find({ start: { $gt: startDate } }, function (err, data) {
+            resolve(_(data).orderBy(x => new Date(x.start)).reverse().value());
+        });
+    });
 }

@@ -35,11 +35,12 @@ import HoursWorked from "components/Toggl/HoursWorked";
 import { bugs, website, server } from "variables/general.js";
 import _ from "lodash";
 import {
+  dailyTimesheets,
   dailySalesChart,
   emailsSubscriptionChart,
   completedTasksChart
 } from "variables/charts.js";
-import { getLatestEntries, getMonthlyStats, getAllStats, getYearlyStats } from 'utils/overtimeChartsHelper';
+import { getLatestEntries, getMonthlyStats, getAllStats, getYearlyStats, getWeeklyStats } from 'utils/overtimeChartsHelper';
 
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 
@@ -64,18 +65,50 @@ class Dashboard extends Component {
   }
 
 
-
-
   async componentDidMount() {
     this.setState({ latestItems: await getLatestEntries() });
+
+    const { chartData, totalLastWeek, totalThisWeek } = await getWeeklyStats();
+    this.setState({ thisWeek: chartData, totalLastWeek: totalLastWeek, totalThisWeek: totalThisWeek });
     this.setState({ thisMonth: await getMonthlyStats() });
-    this.setState({ yearToDate: await getAllStats() });
-    this.setState({ allTime: await getYearlyStats() });
+    this.setState({ yearToDate: await getYearlyStats() });
+    this.setState({ allTime: await getAllStats() });
+  }
+
+  compareWithLastWeek(thisWeek, lastWeek, classes) {
+    if (!thisWeek || !lastWeek)
+      return (<CardBody>
+        <h4 className={classes.cardTitle}> This week </h4>{" "}
+      </CardBody>)
+
+    const getPercentageChange = (oldNumber, newNumber) => {
+      var decreaseValue = oldNumber - newNumber;
+      return (decreaseValue / oldNumber) * 100;
+    }
+
+    const isSame = thisWeek === lastWeek;
+    const isIncreasing = thisWeek > lastWeek;
+    const evolution = isIncreasing ? "increase" : "decrease";
+    const rate = getPercentageChange(thisWeek, lastWeek).toFixed(2);
+
+    var abc = (<p className={classes.cardCategory}>
+      <span className={classes.successText}>
+        <ArrowUpward className={isIncreasing ? classes.upArrowCardCategory : classes.downArrowCardCategory} />
+        {rate}%{" "}
+      </span>{" "}
+      {evolution} in worked time.{" "}
+    </p>);
+
+    return (<CardBody>
+      <h4 className={classes.cardTitle}> This week </h4>{" "}
+      {abc}
+    </CardBody>)
   }
 
   render() {
     const { classes } = this.props;
-    const { latestItems, yearToDate, thisMonth, allTime } = this.state;
+    const { latestItems, thisWeek, yearToDate, thisMonth, allTime, totalLastWeek, totalThisWeek } = this.state;
+
 
     return (
       <div>
@@ -107,6 +140,22 @@ class Dashboard extends Component {
               <CardHeader color="success">
                 <ChartistGraph
                   className="ct-chart"
+                  data={thisWeek}
+                  type="Line"
+                  options={dailyTimesheets.options}
+                  listener={dailyTimesheets.animation}
+                />{" "}
+              </CardHeader>{" "}
+              {" "}
+
+              {this.compareWithLastWeek(totalThisWeek, totalLastWeek, classes)}
+            </Card>{" "}
+          </GridItem>{" "}
+          <GridItem xs={12} sm={12} md={4}>
+            <Card chart>
+              <CardHeader color="success">
+                <ChartistGraph
+                  className="ct-chart"
                   data={thisMonth}
                   type="Line"
                   options={dailySalesChart.options}
@@ -122,11 +171,6 @@ class Dashboard extends Component {
                   increase in today sales.{" "}
                 </p>{" "}
               </CardBody>{" "}
-              <CardFooter chart>
-                <div className={classes.stats}>
-                  <AccessTime /> updated 4 minutes ago{" "}
-                </div>{" "}
-              </CardFooter>{" "}
             </Card>{" "}
           </GridItem>{" "}
           <GridItem xs={12} sm={12} md={4}>
@@ -148,23 +192,18 @@ class Dashboard extends Component {
                   Last Campaign Performance{" "}
                 </p>{" "}
               </CardBody>{" "}
-              <CardFooter chart>
-                <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago{" "}
-                </div>{" "}
-              </CardFooter>{" "}
             </Card>{" "}
           </GridItem>{" "}
-          <GridItem xs={12} sm={12} md={4}>
+          <GridItem xs={12} sm={12} md={12}>
             <Card chart>
               <CardHeader color="danger">
                 <ChartistGraph
                   className="ct-chart"
                   data={allTime}
                   type="Bar"
-                  options={emailsSubscriptionChart.options}
-                  responsiveOptions={emailsSubscriptionChart.responsiveOptions}
-                  listener={emailsSubscriptionChart.animation}
+                  options={completedTasksChart.options}
+                  responsiveOptions={completedTasksChart.responsiveOptions}
+                  listener={completedTasksChart.animation}
                 />{" "}
               </CardHeader>{" "}
               <CardBody>
@@ -174,11 +213,6 @@ class Dashboard extends Component {
                   Last Campaign Performance{" "}
                 </p>{" "}
               </CardBody>{" "}
-              <CardFooter chart>
-                <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago{" "}
-                </div>{" "}
-              </CardFooter>{" "}
             </Card>{" "}
           </GridItem>{" "}
         </GridContainer>{" "}

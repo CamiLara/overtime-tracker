@@ -20,6 +20,7 @@ import TogglImporter from 'utils/togglImport';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { green } from '@material-ui/core/colors';
 import moment from 'moment';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const newStyles = {
   ...styles,
@@ -89,14 +90,27 @@ class TableList extends Component {
   }
 
   async handleClickOpen() {
-    // this.setState({ open: true });
-
     this.setState({ loading: true });
 
     const togglImport = new TogglImporter();
     await togglImport.import();
+    const data = await togglImport.get();
 
-    this.setState({ loading: false });
+    this.setState({
+      data: data,
+      loading: false
+    });
+  }
+
+  async handleResetOpen() {
+    this.setState({ loading: true });
+    const togglImport = new TogglImporter();
+    var removed = await togglImport.reset();
+    const data = await togglImport.get();
+    this.setState({
+      data: data,
+      loading: false
+    });
   }
 
   handleClose() {
@@ -110,8 +124,9 @@ class TableList extends Component {
     return (
       <div>
         <Button variant="outlined" color="primary" onClick={this.handleClickOpen.bind(this)}>Import</Button>
-        {<CircularProgress size={24} className={classes.buttonProgress} />}
+        <Button variant="outlined" color="primary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
 
+        {loading && <LinearProgress />}
         <SimpleDialog selectedValue={selectedValue} open={open} onClose={this.handleClose.bind(this)} />
         <MaterialTable
           options={{
