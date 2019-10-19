@@ -6,6 +6,9 @@ import CardHeader from "../Card/CardHeader.js";
 import CardBody from "../Card/CardBody.js";
 import _ from 'lodash';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+import Chip from '@material-ui/core/Chip';
+import Paper from '@material-ui/core/Paper';
+import TagFacesIcon from '@material-ui/icons/TagFaces';
 
 class LatestItems extends Component {
     formatDate(dateString) {
@@ -36,7 +39,7 @@ class LatestItems extends Component {
         return hDisplay + mDisplay + sDisplay;
     }
 
-    formatDateTime(dateString){
+    formatDateTime(dateString) {
         const date = new Date(dateString);
         return date.toLocaleString('en-GB')
     }
@@ -44,25 +47,25 @@ class LatestItems extends Component {
     render() {
         const { data, classes } = this.props;
         var latestItemsFormatted = _(data)
-        .map(x => {
-            const { start, stop, description } = x;
-            return [this.formatDateTime(start), this.formatDateTime(stop), description];
-        })
-        .take(6)
-        .value();
-        
+            .map(x => {
+                const { start, end, client, description } = x;
+                return [this.formatDateTime(start), this.formatDateTime(end), client, description];
+            })
+            .take(6)
+            .value();
+
         return (
             <Card>
                 <CardHeader color="warning">
                     <h4 className={classes.cardTitleWhite}>Latest Entries</h4>
                     <p className={classes.cardCategoryWhite}>
                         Most recent entries on {this.formatDateTime(new Date())}
-                        </p>
+                    </p>
                 </CardHeader>
                 <CardBody>
                     <Table
                         tableHeaderColor="warning"
-                        tableHead={["Start", "Stop", "Description"]}
+                        tableHead={["Start", "End", "Client", "Description"]}
                         tableData={latestItemsFormatted}
                     />
                 </CardBody>

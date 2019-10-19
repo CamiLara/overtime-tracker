@@ -44,14 +44,14 @@ class HoursWorked extends Component {
     render() {
         const { data, classes } = this.props;
         var latestItemsFormatted = _(data)
-            .groupBy(x => {
+            .groupBy(x => {               
                 const tempDate = new Date(x.start);
                 return new Date(tempDate.getUTCFullYear(), tempDate.getUTCMonth(), tempDate.getUTCDate());
             })
             .map((x, y) => ([
                 this.formatDate(new Date(y)),
-                this.formatTime(_(x).map(y => y.duration).sum()),
-                x.length
+                this.formatTime(_(x).map(y => y.dur).sum() / 1000),
+                x && x.length
             ]))
             .value();
 

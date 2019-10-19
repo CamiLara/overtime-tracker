@@ -9,9 +9,13 @@
     "@material-ui/icons": "4.2.1",
     "chartist": "0.10.1",
     "classnames": "2.2.6",
+    "date-fns": "^2.5.1",
     "history": "4.9.0",
     "lodash": "^4.17.15",
     "material-table": "^1.52.0",
+    "moment": "^2.24.0",
+    "moment-range": "^4.0.2",
+    "nedb": "^1.8.0",
     "perfect-scrollbar": "1.4.0",
     "prop-types": "15.7.2",
     "query-string": "^6.8.3",
@@ -21,8 +25,7 @@
     "react-google-maps": "9.4.5",
     "react-router-dom": "5.0.1",
     "react-scripts": "3.1.0",
-    "react-swipeable-views": "0.13.3",
-    "redb": "^0.0.1"
+    "react-swipeable-views": "0.13.3"
   },
   "scripts": {
     "start": "react-scripts start",

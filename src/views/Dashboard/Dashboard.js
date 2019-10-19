@@ -33,127 +33,155 @@ import togglClient from "utils/togglClient";
 import LatestItems from "components/Toggl/LatestItems";
 import HoursWorked from "components/Toggl/HoursWorked";
 import { bugs, website, server } from "variables/general.js";
-
+import _ from "lodash";
 import {
   dailySalesChart,
   emailsSubscriptionChart,
   completedTasksChart
 } from "variables/charts.js";
+import { getLatestEntries, getMonthlyStats, getAllStats, getYearlyStats } from 'utils/overtimeChartsHelper';
 
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
-
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      latestItems: []
+      latestItems: [],
+      yearToDate: {
+        labels: [],
+        series: []
+      },
+      thisMonth: {
+        labels: [],
+        series: []
+      },
+      allTime: {
+        labels: [],
+        series: []
+      }
     };
   }
 
-  componentDidMount() {
-    var endDate = new Date();
-    var startDate = new Date();
-    startDate.setDate(endDate.getDate() - 7);
 
-    const client = new togglClient();
-    client.fetchTimeEntries(startDate, endDate, x => this.setState({ latestItems: x.sort(x => new Date(x)).reverse() }));
+
+
+  async componentDidMount() {
+    this.setState({ latestItems: await getLatestEntries() });
+    this.setState({ thisMonth: await getMonthlyStats() });
+    this.setState({ yearToDate: await getAllStats() });
+    this.setState({ allTime: await getYearlyStats() });
   }
 
   render() {
     const { classes } = this.props;
-    const { latestItems } = this.state;
+    const { latestItems, yearToDate, thisMonth, allTime } = this.state;
 
     return (
       <div>
         <GridContainer>
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="today" value="10"></Statistic>
-          </GridItem>
+            <Statistic title="today" value="10">
+              {" "}
+            </Statistic>{" "}
+          </GridItem>{" "}
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="this week" value="10"></Statistic>
-          </GridItem>
+            <Statistic title="this week" value="10">
+              {" "}
+            </Statistic>{" "}
+          </GridItem>{" "}
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="this month" value="10"></Statistic>
-          </GridItem>
+            <Statistic title="this month" value="10">
+              {" "}
+            </Statistic>{" "}
+          </GridItem>{" "}
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="this year" value="10"></Statistic>
-          </GridItem>
-        </GridContainer>
+            <Statistic title="this year" value="10">
+              {" "}
+            </Statistic>{" "}
+          </GridItem>{" "}
+        </GridContainer>{" "}
         <GridContainer>
           <GridItem xs={12} sm={12} md={4}>
             <Card chart>
               <CardHeader color="success">
                 <ChartistGraph
                   className="ct-chart"
-                  data={dailySalesChart.data}
+                  data={thisMonth}
                   type="Line"
                   options={dailySalesChart.options}
                   listener={dailySalesChart.animation}
-                />
-              </CardHeader>
+                />{" "}
+              </CardHeader>{" "}
               <CardBody>
-                <h4 className={classes.cardTitle}>Daily Sales</h4>
+                <h4 className={classes.cardTitle}> This month </h4>{" "}
                 <p className={classes.cardCategory}>
                   <span className={classes.successText}>
-                    <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                </span>{" "}
-                  increase in today sales.
-              </p>
-              </CardBody>
+                    <ArrowUpward className={classes.upArrowCardCategory} /> 55%{" "}
+                  </span>{" "}
+                  increase in today sales.{" "}
+                </p>{" "}
+              </CardBody>{" "}
               <CardFooter chart>
                 <div className={classes.stats}>
-                  <AccessTime /> updated 4 minutes ago
-              </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
+                  <AccessTime /> updated 4 minutes ago{" "}
+                </div>{" "}
+              </CardFooter>{" "}
+            </Card>{" "}
+          </GridItem>{" "}
           <GridItem xs={12} sm={12} md={4}>
             <Card chart>
               <CardHeader color="warning">
                 <ChartistGraph
                   className="ct-chart"
-                  data={emailsSubscriptionChart.data}
+                  data={yearToDate}
                   type="Bar"
                   options={emailsSubscriptionChart.options}
                   responsiveOptions={emailsSubscriptionChart.responsiveOptions}
                   listener={emailsSubscriptionChart.animation}
-                />
-              </CardHeader>
+                />{" "}
+              </CardHeader>{" "}
               <CardBody>
-                <h4 className={classes.cardTitle}>Email Subscriptions</h4>
-                <p className={classes.cardCategory}>Last Campaign Performance</p>
-              </CardBody>
+                <h4 className={classes.cardTitle}> Year to date </h4>{" "}
+                <p className={classes.cardCategory}>
+                  {" "}
+                  Last Campaign Performance{" "}
+                </p>{" "}
+              </CardBody>{" "}
               <CardFooter chart>
                 <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
-              </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
+                  <AccessTime /> campaign sent 2 days ago{" "}
+                </div>{" "}
+              </CardFooter>{" "}
+            </Card>{" "}
+          </GridItem>{" "}
           <GridItem xs={12} sm={12} md={4}>
             <Card chart>
               <CardHeader color="danger">
                 <ChartistGraph
                   className="ct-chart"
-                  data={completedTasksChart.data}
-                  type="Line"
-                  options={completedTasksChart.options}
-                  listener={completedTasksChart.animation}
-                />
-              </CardHeader>
+                  data={allTime}
+                  type="Bar"
+                  options={emailsSubscriptionChart.options}
+                  responsiveOptions={emailsSubscriptionChart.responsiveOptions}
+                  listener={emailsSubscriptionChart.animation}
+                />{" "}
+              </CardHeader>{" "}
               <CardBody>
-                <h4 className={classes.cardTitle}>Completed Tasks</h4>
-                <p className={classes.cardCategory}>Last Campaign Performance</p>
-              </CardBody>
+                <h4 className={classes.cardTitle}> All time </h4>{" "}
+                <p className={classes.cardCategory}>
+                  {" "}
+                  Last Campaign Performance{" "}
+                </p>{" "}
+              </CardBody>{" "}
               <CardFooter chart>
                 <div className={classes.stats}>
-                  <AccessTime /> campaign sent 2 days ago
-              </div>
-              </CardFooter>
-            </Card>
-          </GridItem>
-        </GridContainer>
+                  <AccessTime /> campaign sent 2 days ago{" "}
+                </div>{" "}
+              </CardFooter>{" "}
+            </Card>{" "}
+          </GridItem>{" "}
+        </GridContainer>{" "}
         <GridContainer>
           <GridItem xs={12} sm={12} md={6}>
             <CustomTabs
@@ -163,9 +191,7 @@ class Dashboard extends Component {
                 {
                   tabName: "Hours worked",
                   tabIcon: BugReport,
-                  tabContent: (
-                    <HoursWorked data={latestItems}></HoursWorked>                  
-                  )
+                  tabContent: <HoursWorked data={latestItems}> </HoursWorked>
                 },
                 {
                   tabName: "Website",
@@ -190,12 +216,12 @@ class Dashboard extends Component {
                   )
                 }
               ]}
-            />
-          </GridItem>
+            />{" "}
+          </GridItem>{" "}
           <GridItem xs={12} sm={12} md={6}>
-            <LatestItems data={latestItems}></LatestItems>
-          </GridItem>
-        </GridContainer>
+            <LatestItems data={latestItems}> </LatestItems>{" "}
+          </GridItem>{" "}
+        </GridContainer>{" "}
       </div>
     );
   }
