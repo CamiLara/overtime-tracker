@@ -18,7 +18,12 @@ export default class TogglImporter {
             const svc = new settingService();
             const { apiKey, workspace } = await svc.get();
             const client = new togglClient(apiKey, workspace);
-            const allTimeData = await client.fetchPagedTimeEntries(new Date(2007, 9, 1), new Date());
+
+            const from_date = new Date(2007, 9, 1);
+            var to_date = new Date();
+            to_date.setDate(to_date.getDate() + 1);
+
+            const allTimeData = await client.fetchPagedTimeEntries(from_date, to_date);
 
             const allTimeFormattedData = _(allTimeData).map(x => ({
                 ...x,

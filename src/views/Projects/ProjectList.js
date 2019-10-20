@@ -5,24 +5,22 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import { blue } from '@material-ui/core/colors';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
-import Avatar from '@material-ui/core/Avatar';
-import PropTypes from 'prop-types';
-import PersonIcon from '@material-ui/icons/Person';
-import AddIcon from '@material-ui/icons/Add';
-import SimpleDialog from './EntryImportButton';
+import CardActions from '@material-ui/core/CardActions';
+
 import OvertimeHelper from 'utils/overtimeHelper';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { green, red } from '@material-ui/core/colors';
 import moment from 'moment';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Box from '@material-ui/core/Box';
-
+import GridItem from "components/Grid/GridItem.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import CustomInput from "components/CustomInput/CustomInput.js";
+import Card from "components/Card/Card.js";
+import CardHeader from "components/Card/CardHeader.js";
+import CardAvatar from "components/Card/CardAvatar.js";
+import CardBody from "components/Card/CardBody.js";
+import CardFooter from "components/Card/CardFooter.js";
 
 const newStyles = {
   ...styles,
@@ -90,7 +88,7 @@ class OvertimeList extends Component {
   }
 
   async componentDidMount() {
-    const togglImport = new OvertimeHelper();      
+    const togglImport = new OvertimeHelper();
     const data = await togglImport.get();
 
     this.setState({ data: data });
@@ -130,88 +128,98 @@ class OvertimeList extends Component {
 
     return (
       <div>
-        <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
-        {loading && <LinearProgress />}
-        <SimpleDialog selectedValue={selectedValue} open={open} onClose={this.handleClose.bind(this)} />
-        <MaterialTable
-          className={classes.root}
-          style={{
-            lineHeight: 1,
-            padding: 0
-          }}
-          style={{
-            lineHeight: 1,
-            padding: 'dense'
-          }}
-          cellStyle={{
-            lineHeight: 1,
-            padding: 'dense'
-          }}
-          options={{
-            pageSize: 50,
-            padding: 'dense',
-            style: {
-              lineHeight: 1,
-              padding: 'dense'
-            },
-            headerStyle: {
-            },
-            cellStyle: {
-              lineHeight: 1,
-              padding: 0
-            },
-            rowStyle: {
-              lineHeight: 1,
-              padding: 'dense',
-              height: '10px'
-            }
-          }}
-
-          title="Overtime"
-          columns={this.state.columns}
-          data={this.state.data}
-          editable={{
-            isEditable: rowData => true,
-            isDeletable: rowData => true,
-            onRowAdd: newData =>
-              new Promise((resolve, reject) => {
-                var me = this;
-                setTimeout(async () => {
-                  {
-                    const togglImport = new OvertimeHelper();
-                    await togglImport.save(newData);
-                    me.setState({ data: await togglImport.get() })
-                  }
-                  resolve();
-                }, 1000);
-              }),
-            onRowUpdate: (newData, oldData) =>
-              new Promise((resolve, reject) => {
-                var me = this;
-                setTimeout(async () => {
-                  {
-                    const togglImport = new OvertimeHelper();
-                    await togglImport.save(newData);
-                    me.setState({ data: await togglImport.get() })
-                  }
-                  resolve();
-                }, 1000);
-              }),
-            onRowDelete: oldData =>
-              new Promise((resolve, reject) => {
-                var me = this;
-                setTimeout(async () => {
-                  {
-                    const togglImport = new OvertimeHelper();
-                    await togglImport.remove(oldData);
-                    me.setState({ data: await togglImport.get() })
-                  }
-                  resolve();
-                }, 1000);
-              })
-          }}
-        />
-      </div>
+        <GridContainer>
+          <GridItem xs={12} sm={12} md={12}><Card>
+            <CardHeader color="primary">
+              <h4 className={classes.cardTitleWhite}>Manage overtime</h4>
+            </CardHeader>
+            <CardBody>
+              <GridContainer>                
+                <GridItem xs={12} sm={12} md={12}>
+                <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
+                  <MaterialTable
+                    className={classes.root}
+                    style={{
+                      lineHeight: 1,
+                      padding: 0
+                    }}
+                    style={{
+                      lineHeight: 1,
+                      padding: 'dense'
+                    }}
+                    cellStyle={{
+                      lineHeight: 1,
+                      padding: 'dense'
+                    }}
+                    options={{
+                      pageSize: 50,
+                      padding: 'dense',
+                      style: {
+                        lineHeight: 1,
+                        padding: 'dense'
+                      },
+                      headerStyle: {
+                      },
+                      cellStyle: {
+                        lineHeight: 1,
+                        padding: 0
+                      },
+                      rowStyle: {
+                        lineHeight: 1,
+                        padding: 'dense',
+                        height: '10px'
+                      }
+                    }}
+                    title=""
+                    columns={this.state.columns}
+                    data={this.state.data}
+                    editable={{
+                      isEditable: rowData => true,
+                      isDeletable: rowData => true,
+                      onRowAdd: newData =>
+                        new Promise((resolve, reject) => {
+                          var me = this;
+                          setTimeout(async () => {
+                            {
+                              const togglImport = new OvertimeHelper();
+                              await togglImport.save(newData);
+                              me.setState({ data: await togglImport.get() })
+                            }
+                            resolve();
+                          }, 1000);
+                        }),
+                      onRowUpdate: (newData, oldData) =>
+                        new Promise((resolve, reject) => {
+                          var me = this;
+                          setTimeout(async () => {
+                            {
+                              const togglImport = new OvertimeHelper();
+                              await togglImport.save(newData);
+                              me.setState({ data: await togglImport.get() })
+                            }
+                            resolve();
+                          }, 1000);
+                        }),
+                      onRowDelete: oldData =>
+                        new Promise((resolve, reject) => {
+                          var me = this;
+                          setTimeout(async () => {
+                            {
+                              const togglImport = new OvertimeHelper();
+                              await togglImport.remove(oldData);
+                              me.setState({ data: await togglImport.get() })
+                            }
+                            resolve();
+                          }, 1000);
+                        })
+                    }}
+                  />
+                </GridItem>
+              </GridContainer>
+            </CardBody>
+          </Card>
+          </GridItem>
+        </GridContainer></div>
     )
   }
 }

@@ -21,12 +21,20 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { green, red } from '@material-ui/core/colors';
 import moment from 'moment';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import GridItem from "components/Grid/GridItem.js";
+import GridContainer from "components/Grid/GridContainer.js";
 import Box from '@material-ui/core/Box';
+import Card from "components/Card/Card.js";
+import CardHeader from "components/Card/CardHeader.js";
+import CardAvatar from "components/Card/CardAvatar.js";
+import CardBody from "components/Card/CardBody.js";
+import CardFooter from "components/Card/CardFooter.js";
+import CardActions from '@material-ui/core/CardActions';
 
 
 const newStyles = {
   ...styles,
-  root: {  
+  root: {
     lineHeight: 1,
     padding: 'dense'
   },
@@ -141,51 +149,66 @@ class TableList extends Component {
 
     return (
       <div>
+        <GridContainer>
+          <GridItem xs={12} sm={12} md={12}><Card>
+            <CardHeader color="primary">
+              <h4 className={classes.cardTitleWhite}>Import Toggl data</h4>
+            </CardHeader>
+            <CardBody>
+              <GridContainer>
+                <GridItem xs={12} sm={12} md={12}>
+                  <Button variant="contained" className={classes.buttonImport} color="primary" onClick={this.handleClickOpen.bind(this)}>Import</Button>
+                  <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
 
-        <Button variant="contained" className={classes.buttonImport} color="primary" onClick={this.handleClickOpen.bind(this)}>Import</Button>
-        <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
+                  {loading && <LinearProgress />}
+                  <SimpleDialog selectedValue={selectedValue} open={open} onClose={this.handleClose.bind(this)} />
+                  <MaterialTable
+                    className={classes.root}
+                    style={{
+                      lineHeight: 1,
+                      padding: 0
+                    }}
+                    style={{
+                      lineHeight: 1,
+                      padding: 'dense'
+                    }}
+                    cellStyle={{
+                      lineHeight: 1,
+                      padding: 'dense'
+                    }}
+                    options={{
+                      pageSize: 50,
+                      padding: 'dense',
+                      style: {
+                        lineHeight: 1,
+                        padding: 'dense'
+                      },
+                      headerStyle: {
+                      },
+                      cellStyle: {
+                        lineHeight: 1,
+                        padding: 0
+                      },
+                      rowStyle: {
+                        lineHeight: 1,
+                        padding: 'dense',
+                        height: '10px'
+                      }
+                    }}
 
-        {loading && <LinearProgress />}
-        <SimpleDialog selectedValue={selectedValue} open={open} onClose={this.handleClose.bind(this)} />
-        <MaterialTable
-          className={classes.root}
-          style={{
-            lineHeight: 1,
-            padding: 0
-          }}
-          style={{
-            lineHeight: 1,
-            padding: 'dense'
-          }}
-          cellStyle={{
-            lineHeight: 1,
-            padding: 'dense'
-          }}
-          options={{
-            pageSize: 50,
-            padding: 'dense',
-            style: {
-              lineHeight: 1,
-              padding: 'dense'
-            },
-            headerStyle: {
-            },
-            cellStyle: {
-              lineHeight: 1,
-              padding: 0
-            },
-            rowStyle: {
-              lineHeight: 1,
-              padding: 'dense',
-              height: '10px'
-            }
-          }}
-
-          title="Toggl data"
-          columns={this.state.columns}
-          data={this.state.data}
-        />
-      </div>
+                    title=""
+                    columns={this.state.columns}
+                    data={this.state.data}
+                  />
+                </GridItem>
+              </GridContainer>
+              <CardActions disableSpacing>
+                <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
+              </CardActions>
+            </CardBody>
+          </Card>
+          </GridItem>
+        </GridContainer></div>
     )
   }
 }

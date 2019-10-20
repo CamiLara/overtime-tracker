@@ -142,8 +142,7 @@ const emailsSubscriptionChart = {
   options: {
     axisX: {
       showGrid: false,
-      labelInterpolationFnc: function (value) {
-        console.log(value);
+      labelInterpolationFnc: function (value) {      
         return moment(value).format('MMM');
       }
     },
