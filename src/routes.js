@@ -29,10 +29,13 @@ import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/UserProfile/UserProfile.js";
 import TableList from "views/TableList/TableList.js";
 import Typography from "views/Typography/Typography.js";
-import Icons from "views/Icons/Icons.js";
+import Projects from "views/Projects/ProjectList.js";
 import Maps from "views/Maps/Maps.js";
 import NotificationsPage from "views/Notifications/Notifications.js";
 // core components/views for RTL layout
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import SettingsIcon from '@material-ui/icons/Settings';
+import DateRangeIcon from '@material-ui/icons/DateRange';
 
 const dashboardRoutes = [
   {
@@ -47,15 +50,23 @@ const dashboardRoutes = [
     path: "/table",
     name: "Import",
     rtlName: "قائمة الجدول",
-    icon: "content_paste",
+    icon: CloudDownloadIcon,
     component: TableList,
+    layout: "/admin"
+  },
+  {
+    path: "/projects",
+    name: "Overtime",
+    rtlName: "قائمة الجدول",
+    icon: DateRangeIcon,
+    component: Projects,
     layout: "/admin"
   },
   {
     path: "/user",
     name: "Settings",
     rtlName: "ملف تعريفي للمستخدم",
-    icon: Person,
+    icon:SettingsIcon,    
     component: UserProfile,
     layout: "/admin"
   }

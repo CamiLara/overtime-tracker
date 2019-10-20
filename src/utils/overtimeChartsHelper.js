@@ -42,7 +42,7 @@ export function getWeeklyStats() {
         const to_date = moment().endOf('isoWeek').toDate();
 
         const db = new Datastore({ filename: 'toggl.db', autoload: true });
-        const data = db.find({ start: { $gte: from_date }, start: { $lte: to_date } }, async function (err, data) {
+        const data = db.find({ start: { $gte: from_date, $lte: to_date } }, async function (err, data) {
             const startOfWeek = moment().startOf('isoWeek').toDate();
             const partitioned = partition(data, x => moment(x.start).isBefore(startOfWeek));
 
@@ -134,7 +134,11 @@ export async function getYearlyStats() {
     return new Promise(resolve => {
         var endDate = new Date();
         const db = new Datastore({ filename: 'toggl.db', autoload: true });
-        db.find({ start: { $gt: new Date(endDate.getUTCFullYear(), 0, 1) } }, function (err, data) {
+
+        const from_date = new Date(endDate.getUTCFullYear(), 0, 1);
+        const to_date = moment().endOf('year');
+
+        db.find({ start: { $gte: from_date, $lte: to_date } }, async function (err, data) {
             const sourceData = _(data)
                 .orderBy(x => new Date(x.start))
                 .groupBy(x => {
@@ -142,9 +146,23 @@ export async function getYearlyStats() {
                     return new Date(tempDate.getUTCFullYear(), tempDate.getUTCMonth());
                 });
 
+            const workedSeries = sourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value();
+
+            const helper = new overtimeHelper();
+            const overtime = await helper.getByDates(from_date, to_date);
+            const overtimeSeries = _(sourceData)
+                .chain()
+                .map((x, k) => new Date(k))
+                .map((x, i) => {
+                    const overtimeForThisDay = _(overtime).filter(y => y.date.setHours(0) - x.setHours(0) === 0).first();
+                    return workedSeries[i] - (overtimeForThisDay && overtimeForThisDay.overtime || 0);
+                })
+                .flatten()
+                .value();
+
             var chartData = {
                 labels: sourceData.map((x, k) => new Date(k)).value(),
-                series: [sourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
+                series: [overtimeSeries, workedSeries]
             };
 
             resolve(chartData);
@@ -157,7 +175,11 @@ export async function getAllStats() {
 
         // All time
         const db = new Datastore({ filename: 'toggl.db', autoload: true });
-        db.find({ start: { $gt: new Date(2007, 0, 1) } }, function (err, data) {
+
+        const from_date = new Date(2007, 0, 1);
+        const to_date = moment().endOf('year');
+
+        db.find({ start: { $gt: from_date } }, async function (err, data) {
 
             const allTimeSourceData = _(data)
                 .orderBy(x => new Date(x.start))
@@ -166,9 +188,22 @@ export async function getAllStats() {
                     return 'Q' + moment(tempDate).quarter() + ' ' + tempDate.getUTCFullYear()
                 });
 
+            const workedSeries = allTimeSourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value();
+            const helper = new overtimeHelper();
+            const overtime = await helper.getByDates(from_date, to_date);
+            const overtimeSeries = _(allTimeSourceData)
+                .chain()
+                .map((x, k) => new Date(k))
+                .map((x, i) => {
+                    const overtimeForThisDay = _(overtime).filter(y => y.date.setHours(0) - x.setHours(0) === 0).first();
+                    return workedSeries[i] - (overtimeForThisDay && overtimeForThisDay.overtime || 0);
+                })
+                .flatten()
+                .value();
+
             var chartData = {
                 labels: allTimeSourceData.map((x, k) => k).value(),
-                series: [allTimeSourceData.map((x, i) => _(x).map(y => y.dur).sum() / (1000 * 60 * 60)).value()]
+                series: [overtimeSeries, workedSeries]
             };
 
             resolve(chartData);

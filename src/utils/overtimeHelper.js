@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import togglClient from './togglClient';
 import settingService from '../views/UserProfile/settings';
+import moment from 'moment';
 
 // Type 3: Persistent datastore with automatic loading
 var Datastore = require('nedb');
@@ -15,8 +16,12 @@ export default class OvertimeHelper {
     async save(overtime) {
         return new Promise(async resolve => {
 
-            const overtimeToSave = { ...overtime, id: new Date(overtime.date).getTime() };
-
+            const overtimeToSave = {
+                ...overtime,
+                date: moment(overtime.date).startOf('day').toDate(),
+                id: new Date(overtime.date).getTime()
+            };
+            
             this.db.find({ id: overtimeToSave.id }, (err, docs) => {
                 if (docs.length === 0) {
                     this.db.insert(overtimeToSave, function (err, newDocs) {
@@ -46,6 +51,14 @@ export default class OvertimeHelper {
                 resolve(docs);
             });
         })
+    }
+
+    remove(overtime) {
+        return new Promise(resolve => {
+            this.db.remove({ id: new Date(overtime.date).getTime() }, { multi: true }, function (err, numRemoved) {
+                resolve(numRemoved);
+            })
+        });
     }
 
     reset() {

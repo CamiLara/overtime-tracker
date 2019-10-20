@@ -15,33 +15,109 @@ import Avatar from '@material-ui/core/Avatar';
 import PropTypes from 'prop-types';
 import PersonIcon from '@material-ui/icons/Person';
 import AddIcon from '@material-ui/icons/Add';
-import SimpleDialog from './ProjectImportButton';
+import SimpleDialog from './EntryImportButton';
+import OvertimeHelper from 'utils/overtimeHelper';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { green, red } from '@material-ui/core/colors';
+import moment from 'moment';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Box from '@material-ui/core/Box';
 
-class ProjectList extends Component {
+
+const newStyles = {
+  ...styles,
+  root: {
+    lineHeight: 1,
+    padding: 'dense'
+  },
+  buttonProgress: {
+    color: green[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12,
+  },
+  buttonImport: {
+    marginBottom: '10px',
+    marginRight: '10px'
+  },
+  buttonReset: {
+    marginBottom: '10px',
+    marginRight: '10px'
+  },
+  sizeSmall: {
+    padding: 0
+  }
+}
+
+class Entry {
+
+  constructor(start, stop, description, duration, tags) {
+    this.start = start;
+    this.stop = stop;
+    this.description = description;
+    this.duration = duration;
+    this.tags = tags;
+  }
+
+  static from(json) {
+    return Object.assign(new Entry(), { ...json });
+  }
+}
+
+class OvertimeList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       columns: [
-        { title: 'Name', field: 'name' },
-        { title: 'Surname', field: 'surname', initialEditValue: 'initial edit value' },
-        { title: 'Birth Year', field: 'birthYear', type: 'numeric' },
         {
-          title: 'Birth Place',
-          field: 'birthCity',
-          lookup: { 34: 'İstanbul', 63: 'Şanlıurfa' },
+          title: 'Date',
+          field: 'date',
+          type: 'date',
+          defaultSort: 'desc',
+          render: rowData => <p>{moment(rowData.date).format("LLLL")}</p>
         },
-      ],
-      data: [
-        { name: 'Mehmet', surname: 'Baran', birthYear: 1987, birthCity: 63 },
-        { name: 'Zerya Betül', surname: 'Baran', birthYear: 2017, birthCity: 34 },
+        {
+          title: 'Overtime',
+          type: 'numeric',
+          field: 'overtime',
+        }
       ],
       selectedValue: '',
       open: false
     }
   }
 
-  handleClickOpen() {
-    this.setState({ open: true });
+  async componentDidMount() {
+    const togglImport = new OvertimeHelper();      
+    const data = await togglImport.get();
+
+    this.setState({ data: data });
+  }
+
+  async handleClickOpen() {
+    this.setState({ loading: true });
+
+    const togglImport = new OvertimeHelper();
+    await togglImport.save();
+    const data = await togglImport.get();
+
+    this.setState({
+      data: data,
+      loading: false
+    });
+  }
+
+  async handleResetOpen() {
+    this.setState({ loading: true });
+    const togglImport = new OvertimeHelper();
+    var removed = await togglImport.reset();
+    const data = await togglImport.get();
+    this.setState({
+      data: data,
+      loading: false
+    });
   }
 
   handleClose() {
@@ -50,52 +126,89 @@ class ProjectList extends Component {
 
   render() {
     const { classes } = this.props;
-    const { selectedValue, open } = this.state;
+    const { selectedValue, open, loading } = this.state;
 
     return (
       <div>
-        <Button variant="outlined" color="primary" onClick={this.handleClickOpen.bind(this)}>Import</Button>
+        <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
+        {loading && <LinearProgress />}
         <SimpleDialog selectedValue={selectedValue} open={open} onClose={this.handleClose.bind(this)} />
         <MaterialTable
-          title="Toggl data"
+          className={classes.root}
+          style={{
+            lineHeight: 1,
+            padding: 0
+          }}
+          style={{
+            lineHeight: 1,
+            padding: 'dense'
+          }}
+          cellStyle={{
+            lineHeight: 1,
+            padding: 'dense'
+          }}
+          options={{
+            pageSize: 50,
+            padding: 'dense',
+            style: {
+              lineHeight: 1,
+              padding: 'dense'
+            },
+            headerStyle: {
+            },
+            cellStyle: {
+              lineHeight: 1,
+              padding: 0
+            },
+            rowStyle: {
+              lineHeight: 1,
+              padding: 'dense',
+              height: '10px'
+            }
+          }}
+
+          title="Overtime"
           columns={this.state.columns}
           data={this.state.data}
           editable={{
+            isEditable: rowData => true,
+            isDeletable: rowData => true,
             onRowAdd: newData =>
               new Promise((resolve, reject) => {
-                setTimeout(() => {
+                var me = this;
+                setTimeout(async () => {
                   {
-                    const data = this.state.data;
-                    data.push(newData);
-                    this.setState({ data }, () => resolve());
+                    const togglImport = new OvertimeHelper();
+                    await togglImport.save(newData);
+                    me.setState({ data: await togglImport.get() })
                   }
-                  resolve()
-                }, 1000)
+                  resolve();
+                }, 1000);
               }),
             onRowUpdate: (newData, oldData) =>
               new Promise((resolve, reject) => {
-                setTimeout(() => {
+                var me = this;
+                setTimeout(async () => {
                   {
-                    const data = this.state.data;
-                    const index = data.indexOf(oldData);
-                    data[index] = newData;
-                    this.setState({ data }, () => resolve());
+                    const togglImport = new OvertimeHelper();
+                    await togglImport.save(newData);
+                    me.setState({ data: await togglImport.get() })
                   }
-                  resolve()
-                }, 1000)
+                  resolve();
+                }, 1000);
               }),
             onRowDelete: oldData =>
               new Promise((resolve, reject) => {
-                setTimeout(() => {
+                var me = this;
+                setTimeout(async () => {
                   {
-                    let data = this.state.data;
-                    const index = data.indexOf(oldData);
-                    data.splice(index, 1);
-                    this.setState({ data }, () => resolve());
+                    const togglImport = new OvertimeHelper();
+                    await togglImport.remove(oldData);
+                    me.setState({ data: await togglImport.get() })
                   }
-                  resolve()
-                }, 1000)
-              }),
+                  resolve();
+                }, 1000);
+              })
           }}
         />
       </div>
@@ -103,4 +216,4 @@ class ProjectList extends Component {
   }
 }
 
-export default withStyles(styles)(ProjectList);
+export default withStyles(newStyles)(OvertimeList);
