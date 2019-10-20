@@ -9,14 +9,22 @@ import {
     differenceInMonths
 } from 'date-fns';
 import _ from 'lodash';
+import * as Promise from "bluebird";
 
 const queryString = require('query-string');
 
 const moment = extendMoment(Moment);
 
 export default class TogglClient {
-    constructor(apiKey = '0d2f981c9cbb41aca1dd7f62bb40a121') {
+    constructor(apiKey, workspace) {
+        if (!apiKey)
+            throw new Error('api key cannot be null');
+
+        if (!workspace)
+            throw new Error('workspace cannot be null');
+
         this.apiKey = apiKey;
+        this.workspace = workspace;
 
         const baseUri = "https://toggl.com/";
         this.reportsBaseUri = `${baseUri}reports/api/v2/details?`;
@@ -55,7 +63,7 @@ export default class TogglClient {
         const stringified = queryString.stringify({
             since: startDate && new Date(startDate).toISOString(),
             until: endDate && new Date(endDate).toISOString(),
-            workspace_id: '709775',
+            workspace_id: this.workspace,
             user_agent: 'hendrik.bulens@gmail.com',
             page: page
         });
@@ -66,18 +74,19 @@ export default class TogglClient {
 
     async fetchPagedTimeEntries(startDate = new Date(2016, 1, 1), endDate = new Date(2025, 1, 1)) {
         const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-        async function sleep(fn, ...args) {
-            await timeout(3000);
+        async function sleep(duration, fn, ...args) {
+            await timeout(duration);
             return fn(...args);
         }
 
         const loop = async (start, end) => {
+            console.log('Loop iteration:' + startDate + ' -> ' + endDate);
             let result = [];
             let counter = 1;
             let total = 1;
 
             while (result.length < total) {
-                await sleep(async () => {
+                await sleep(1000, async () => {
                     var {
                         data,
                         total_count
@@ -115,7 +124,7 @@ export default class TogglClient {
                 }))
                 .value();
 
-            const loop2 = () => Promise.all(years.map(item => loop(item.min, item.max)));
+            const loop2 = () => Promise.map(years, async item => await loop(item.min, item.max), { concurrency: 3 });
             return loop2().then(res => _(res).flatten().value());
         }
 

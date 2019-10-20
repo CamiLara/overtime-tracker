@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import togglClient from './togglClient';
+import settingService from '../views/UserProfile/settings';
+
 // Type 3: Persistent datastore with automatic loading
 var Datastore = require('nedb');
 
@@ -12,7 +14,10 @@ export default class TogglImporter {
 
     async import() {
         return new Promise(async resolve => {
-            const client = new togglClient();
+
+            const svc = new settingService();
+            const { apiKey, workspace } = await svc.get();
+            const client = new togglClient(apiKey, workspace);
             const allTimeData = await client.fetchPagedTimeEntries(new Date(2007, 9, 1), new Date());
 
             const allTimeFormattedData = _(allTimeData).map(x => ({

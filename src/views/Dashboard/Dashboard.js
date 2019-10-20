@@ -41,9 +41,43 @@ import {
   completedTasksChart
 } from "variables/charts.js";
 import { getLatestEntries, getMonthlyStats, getAllStats, getYearlyStats, getWeeklyStats } from 'utils/overtimeChartsHelper';
-
+import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import NavigationIcon from '@material-ui/icons/Navigation';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
-
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import TextField from '@material-ui/core/TextField';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import Switch from '@material-ui/core/Switch';
+import moment from 'moment';
+import overtimeHelper from 'utils/overtimeHelper';
+const newStyles = (theme) => {
+  return {
+    ...styles,
+    container: {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
+    textField: {
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+    },
+    dense: {
+      marginTop: theme.spacing(2),
+    },
+  }
+}
 class Dashboard extends Component {
   constructor(props) {
     super(props);
@@ -105,14 +139,85 @@ class Dashboard extends Component {
     </CardBody>)
   }
 
+  handleClickOpen() {
+    this.setState({ open: true });
+  }
+
+  async handleClose() {
+    this.setState({ open: false });
+    const togglImport = new overtimeHelper();
+    const { date, overtime } = this.state;
+    await togglImport.save({ date: new Date(date), overtime: parseFloat(overtime) });
+  }
+
+  handleInputChange(event) {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+
+    this.setState({
+      [name]: value
+    });
+  }
+
   render() {
     const { classes } = this.props;
-    const { latestItems, thisWeek, yearToDate, thisMonth, allTime, totalLastWeek, totalThisWeek } = this.state;
+    const { latestItems, thisWeek, yearToDate, thisMonth, allTime, totalLastWeek, totalThisWeek, open } = this.state;
 
 
     return (
       <div>
         <GridContainer>
+          <GridItem xs={12} sm={12} md={12}>
+            <Button variant="contained" color="primary" onClick={this.handleClickOpen.bind(this)}><AddIcon /> Register overtime</Button>
+          </GridItem>{" "}
+          <Dialog open={open} onClose={this.handleClose.bind(this)} aria-labelledby="form-dialog-title">
+            <DialogTitle id="form-dialog-title">Overtime</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                To add overtime, please select a date and enter the amount.
+          </DialogContentText>
+              <form className={classes.form} noValidate>
+                <FormControl className={classes.formControl}>
+                  <TextField
+                    id="date"
+                    label="Date"
+                    name="date"
+                    type="date"
+                    defaultValue={moment().format("YYYY-MM-DD")}
+                    className={classes.textField}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    onChange={this.handleInputChange.bind(this)}
+                  />
+                </FormControl>
+
+                <FormControl className={classes.formControl}>
+                  <TextField
+                    className={classes.textField}
+                    id="filled-number"
+                    name="overtime"
+                    label="Number"
+                    type="number"
+                    inputProps={{ min: "0", max: "24", step: "0.25" }}
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    onChange={this.handleInputChange.bind(this)}
+                  />
+                </FormControl>
+              </form>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleClose.bind(this)} color="primary">
+                Cancel
+          </Button>
+              <Button onClick={this.handleClose.bind(this)} color="primary">
+                Submit
+          </Button>
+            </DialogActions>
+          </Dialog>
           <GridItem xs={12} sm={6} md={3}>
             <Statistic title="today" value="10">
               {" "}
@@ -256,9 +361,9 @@ class Dashboard extends Component {
             <LatestItems data={latestItems}> </LatestItems>{" "}
           </GridItem>{" "}
         </GridContainer>{" "}
-      </div>
+      </div >
     );
   }
 }
 
-export default withStyles(styles)(Dashboard);
+export default withStyles(newStyles)(Dashboard);
