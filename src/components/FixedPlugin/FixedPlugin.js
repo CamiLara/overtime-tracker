@@ -5,10 +5,6 @@ import PropTypes from "prop-types";
 // nodejs library that concatenates classes
 import classnames from "classnames";
 
-import imagine1 from "assets/img/sidebar-1.jpg";
-import imagine2 from "assets/img/sidebar-2.jpg";
-import imagine3 from "assets/img/sidebar-3.jpg";
-import imagine4 from "assets/img/sidebar-4.jpg";
 
 import Button from "components/CustomButtons/Button.js";
 
@@ -93,50 +89,6 @@ export default function FixedPlugin(props) {
             </a>
           </li>
           <li className="header-title">Images</li>
-          <li className={bgImage === imagine1 ? "active" : ""}>
-            <a
-              className="img-holder switch-trigger"
-              onClick={() => {
-                setBgImage(imagine1);
-                props.handleImageClick(imagine1);
-              }}
-            >
-              <img src={imagine1} alt="..." />
-            </a>
-          </li>
-          <li className={bgImage === imagine2 ? "active" : ""}>
-            <a
-              className="img-holder switch-trigger"
-              onClick={() => {
-                setBgImage(imagine2);
-                props.handleImageClick(imagine2);
-              }}
-            >
-              <img src={imagine2} alt="..." />
-            </a>
-          </li>
-          <li className={bgImage === imagine3 ? "active" : ""}>
-            <a
-              className="img-holder switch-trigger"
-              onClick={() => {
-                setBgImage(imagine3);
-                props.handleImageClick(imagine3);
-              }}
-            >
-              <img src={imagine3} alt="..." />
-            </a>
-          </li>
-          <li className={bgImage === imagine4 ? "active" : ""}>
-            <a
-              className="img-holder switch-trigger"
-              onClick={() => {
-                setBgImage(imagine4);
-                props.handleImageClick(imagine4);
-              }}
-            >
-              <img src={imagine4} alt="..." />
-            </a>
-          </li>
 
           <li className="button-container">
             <div className="button-container">

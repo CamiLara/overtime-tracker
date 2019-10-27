@@ -13,7 +13,13 @@ let mainWindow;
 
 function createWindow() {
     // Create the browser window.
-    mainWindow = new BrowserWindow({ width: 800, height: 600 });
+    mainWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        maximizable: true,
+        minimizable: true,
+        icon: path.join(__dirname + '/../build/icon.ico')
+    });
 
     // and load the index.html of the app.
     const startUrl = process.env.ELECTRON_START_URL || url.format({
@@ -33,6 +39,8 @@ function createWindow() {
         // when you should delete the corresponding element.
         mainWindow = null
     })
+
+    mainWindow.maximize();
 }
 
 // This method will be called when Electron has finished

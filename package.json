@@ -5,7 +5,7 @@
   "description": "Manage your overtime using Toggl time entries",
   "author": "hendrik Bulens <hendrik.bulens@gmail.com> (https://www.hendrikbulens.com/)",
   "private": false,
-  "main": "src/electron-starter.js",
+  "main": "public/electron.js",
   "dependencies": {
     "@material-ui/core": "4.3.2",
     "@material-ui/icons": "4.2.1",
@@ -71,11 +71,15 @@
     "prettier": "1.18.2"
   },
   "build": {
-    "appId": "com.mook",
+    "appId": "toggl.overtime.tracker",
     "files": [
       "build /**/*",
       "node_modules /**/*"
     ],
+    "win": {
+      "target": "msi",
+      "icon": "build/icon.ico"
+    },
     "directories": {
       "buildResources": "assets"
     }
