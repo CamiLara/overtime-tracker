@@ -202,9 +202,6 @@ class TableList extends Component {
                   />
                 </GridItem>
               </GridContainer>
-              <CardActions disableSpacing>
-                <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
-              </CardActions>
             </CardBody>
           </Card>
           </GridItem>

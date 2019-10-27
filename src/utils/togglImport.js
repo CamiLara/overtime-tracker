@@ -24,13 +24,15 @@ export default class TogglImporter {
             to_date.setDate(to_date.getDate() + 1);
 
             const allTimeData = await client.fetchPagedTimeEntries(from_date, to_date);
-
             const allTimeFormattedData = _(allTimeData).map(x => ({
                 ...x,
                 start: new Date(x.start),
                 end: new Date(x.end)
             })).value();
-            this.db.insert(allTimeFormattedData, function (err, newDocs) {
+
+            const allRecords = await this.get();
+            const itemsToInsert = _(allTimeFormattedData).filter(x => !_.some(allRecords, y => y.id === x.id)).value();
+            this.db.insert(itemsToInsert, function (err, newDocs) {
                 resolve(newDocs);
             });
         })

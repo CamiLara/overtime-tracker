@@ -134,9 +134,9 @@ class OvertimeList extends Component {
               <h4 className={classes.cardTitleWhite}>Manage overtime</h4>
             </CardHeader>
             <CardBody>
-              <GridContainer>                
+              <GridContainer>
                 <GridItem xs={12} sm={12} md={12}>
-                <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
+                  <Button variant="contained" className={classes.buttonReset} color="secondary" onClick={this.handleResetOpen.bind(this)}>Reset</Button>
                   <MaterialTable
                     className={classes.root}
                     style={{

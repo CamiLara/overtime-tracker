@@ -24,7 +24,7 @@ const dailyTimesheets = {
     axisX: {
       showGrid: false,
       labelInterpolationFnc: function (value) {
-        return moment(value).format('dddd');
+        return moment(value).format('ddd');
       }
     },
     lineSmooth: Chartist.Interpolation.cardinal({

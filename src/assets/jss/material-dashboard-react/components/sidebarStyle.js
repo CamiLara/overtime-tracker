@@ -78,10 +78,10 @@ const sidebarStyle = theme => ({
   logoLink: {
     ...defaultFont,
     textTransform: "uppercase",
-    padding: "5px 0",
+    // padding: "5px 0",
     display: "block",
     fontSize: "18px",
-    textAlign: "left",
+    textAlign: "center",
     fontWeight: "400",
     lineHeight: "30px",
     textDecoration: "none",
@@ -103,7 +103,7 @@ const sidebarStyle = theme => ({
   img: {
     width: "35px",
     top: "15px",
-    position: "absolute",
+    // position: "absolute",
     verticalAlign: "middle",
     border: "0"
   },
@@ -285,7 +285,7 @@ const sidebarStyle = theme => ({
     position: "relative",
     height: "calc(100vh - 75px)",
     overflow: "auto",
-    width: "260px",
+    width: "200px",
     zIndex: "4",
     overflowScrolling: "touch"
   },

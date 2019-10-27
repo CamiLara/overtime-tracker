@@ -58,7 +58,7 @@ export default class TogglClient {
 
     async fetchTimeEntries(startDate = new Date(2007, 1, 1), endDate = new Date(2025, 1, 1), page = 1) {
 
-        //console.log(startDate + ' -> ' + endDate + ':' + page);
+        // console.log(startDate + ' -> ' + endDate + ':' + page);
 
         const stringified = queryString.stringify({
             since: startDate && new Date(startDate).toISOString(),
@@ -79,8 +79,7 @@ export default class TogglClient {
             return fn(...args);
         }
 
-        const loop = async (start, end) => {
-            //console.log('Loop iteration:' + startDate + ' -> ' + endDate);
+        const loop = async (start, end) => {         
             let result = [];
             let counter = 1;
             let total = 1;

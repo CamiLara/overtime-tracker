@@ -94,7 +94,12 @@ class Dashboard extends Component {
       allTime: {
         labels: [],
         series: []
-      }
+      },
+      thisWeek: {
+        labels: [],
+        series: []
+      },
+      open: false
     };
   }
 
@@ -102,11 +107,74 @@ class Dashboard extends Component {
   async componentDidMount() {
     this.setState({ latestItems: await getLatestEntries() });
 
-    const { chartData, totalLastWeek, totalThisWeek } = await getWeeklyStats();
-    this.setState({ thisWeek: chartData, totalLastWeek: totalLastWeek, totalThisWeek: totalThisWeek });
-    this.setState({ thisMonth: await getMonthlyStats() });
-    this.setState({ yearToDate: await getYearlyStats() });
+    const { chartData: weeklyChart, totalLastWeek, totalThisWeek } = await getWeeklyStats();
+    const { chartData: monthlyChart, totalLastMonth, totalThisMonth } = await getMonthlyStats();
+    const { chartData: yearlyChart, totalLastYear, totalThisYear } = await getYearlyStats();
+
+    this.setState({ thisWeek: weeklyChart, totalLastWeek: totalLastWeek, totalThisWeek: totalThisWeek });
+    this.setState({ thisMonth: monthlyChart, totalThisMonth: totalThisMonth, totalLastMonth: totalLastMonth });
+    this.setState({ yearToDate: yearlyChart, totalThisYear: totalThisYear, totalLastYear: totalLastYear });
     this.setState({ allTime: await getAllStats() });
+  }
+
+  compareWithLastYear(thisWeek = 0, lastWeek = 0, classes) {
+    if (thisWeek === 0 && lastWeek === 0)
+      return (<CardBody>
+        <h4 className={classes.cardTitle}> This year </h4>{" "}
+      </CardBody>)
+
+    const getPercentageChange = (oldNumber, newNumber) => {
+      var decreaseValue = oldNumber - newNumber;
+      return (decreaseValue / oldNumber) * 100;
+    }
+
+    const isSame = thisWeek === lastWeek;
+    const isIncreasing = thisWeek > lastWeek;
+    const evolution = isIncreasing ? "increase" : "decrease";
+    const rate = getPercentageChange(thisWeek, lastWeek).toFixed(2);
+
+    var abc = (<p className={classes.cardCategory}>
+      <span className={classes.successText}>
+        <ArrowUpward className={isIncreasing ? classes.upArrowCardCategory : classes.downArrowCardCategory} />
+        {rate}%{" "}
+      </span>{" "}
+      {evolution} in comparison with the previous period.{" "}
+    </p>);
+
+    return (<CardBody>
+      <h4 className={classes.cardTitle}> This year </h4>{" "}
+      {abc}
+    </CardBody>)
+  }
+
+  compareWithLastMonth(thisWeek = 0, lastWeek = 0, classes) {
+    if (thisWeek === 0 && lastWeek === 0)
+      return (<CardBody>
+        <h4 className={classes.cardTitle}> This month </h4>{" "}
+      </CardBody>)
+
+    const getPercentageChange = (oldNumber, newNumber) => {
+      var decreaseValue = oldNumber - newNumber;
+      return (decreaseValue / oldNumber) * 100;
+    }
+
+    const isSame = thisWeek === lastWeek;
+    const isIncreasing = thisWeek > lastWeek;
+    const evolution = isIncreasing ? "increase" : "decrease";
+    const rate = getPercentageChange(thisWeek, lastWeek).toFixed(2);
+
+    var abc = (<p className={classes.cardCategory}>
+      <span className={classes.successText}>
+        <ArrowUpward className={isIncreasing ? classes.upArrowCardCategory : classes.downArrowCardCategory} />
+        {rate}%{" "}
+      </span>{" "}
+      {evolution} in comparison with the previous period.{" "}
+    </p>);
+
+    return (<CardBody>
+      <h4 className={classes.cardTitle}> This month </h4>{" "}
+      {abc}
+    </CardBody>)
   }
 
   compareWithLastWeek(thisWeek, lastWeek, classes) {
@@ -130,7 +198,7 @@ class Dashboard extends Component {
         <ArrowUpward className={isIncreasing ? classes.upArrowCardCategory : classes.downArrowCardCategory} />
         {rate}%{" "}
       </span>{" "}
-      {evolution} in worked time.{" "}
+      {evolution} in comparison with the previous period.{" "}
     </p>);
 
     return (<CardBody>
@@ -155,15 +223,48 @@ class Dashboard extends Component {
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
 
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   }
 
   render() {
     const { classes } = this.props;
-    const { latestItems, thisWeek, yearToDate, thisMonth, allTime, totalLastWeek, totalThisWeek, open } = this.state;
+    const {
+      latestItems,
+      thisWeek,
+      yearToDate,
+      thisMonth,
+      allTime,
+      totalLastWeek,
+      totalThisWeek,
+      totalLastMonth,
+      totalThisMonth,
+      totalThisYear,
+      totalLastYear,
+      open } = this.state;
 
+    const dailyTimesheetsOptions = {
+      ...dailyTimesheets.options,
+      high: Math.max.apply(null, _(thisWeek.series).max(y => _(y).max())) + 2,
+      low: Math.min.apply(null, _(thisWeek.series).min(y => _(y).min())) - 2
+    }
+
+    const revisedDailyTimesheets = {
+      ...dailyTimesheets,
+      options: dailyTimesheetsOptions
+    }
+
+    const monthlyTimesheetsOptions = {
+      ...dailySalesChart.options,
+      high: Math.max.apply(null, _(thisMonth.series).max(y => _(y).max())) + 2,
+      low: Math.min.apply(null, _(thisMonth.series).min(y => _(y).min())) - 2
+    }
+
+    const revisedMonthlyTimesheets = {
+      ...dailySalesChart,
+      options: monthlyTimesheetsOptions
+    }
+
+    const totalToday = thisWeek && thisWeek.length > 1 && thisWeek.series[1][moment().day()] || 0;
 
     return (
       <div>
@@ -186,9 +287,7 @@ class Dashboard extends Component {
                     type="date"
                     defaultValue={moment().format("YYYY-MM-DD")}
                     className={classes.textField}
-                    InputLabelProps={{
-                      shrink: true
-                    }}
+                    InputLabelProps={{ shrink: true }}
                     onChange={this.handleInputChange.bind(this)}
                   />
                 </FormControl>
@@ -219,27 +318,27 @@ class Dashboard extends Component {
             </DialogActions>
           </Dialog>
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="today" value="10">
+            <Statistic title="today" value={(totalToday || 0).toFixed(2)}>
               {" "}
             </Statistic>{" "}
           </GridItem>{" "}
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="this week" value="10">
+            <Statistic title="this week" value={(totalThisWeek || 0).toFixed(2)}>
               {" "}
             </Statistic>{" "}
           </GridItem>{" "}
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="this month" value="10">
+            <Statistic title="this month" value={(totalThisMonth || 0).toFixed(2)}>
               {" "}
             </Statistic>{" "}
           </GridItem>{" "}
           <GridItem xs={12} sm={6} md={3}>
-            <Statistic title="this year" value="10">
+            <Statistic title="this year" value={(totalThisYear || 0).toFixed(2)}>
               {" "}
             </Statistic>{" "}
-          </GridItem>{" "}
-        </GridContainer>{" "}
-        <GridContainer>
+          </GridItem > {" "}
+        </GridContainer > {" "}
+        < GridContainer >
           <GridItem xs={12} sm={12} md={4}>
             <Card chart>
               <CardHeader color="success">
@@ -247,8 +346,8 @@ class Dashboard extends Component {
                   className="ct-chart"
                   data={thisWeek}
                   type="Line"
-                  options={dailyTimesheets.options}
-                  listener={dailyTimesheets.animation}
+                  options={revisedDailyTimesheets.options}
+                  listener={revisedDailyTimesheets.animation}
                 />{" "}
               </CardHeader>{" "}
               {" "}
@@ -263,19 +362,12 @@ class Dashboard extends Component {
                   className="ct-chart"
                   data={thisMonth}
                   type="Line"
-                  options={dailySalesChart.options}
-                  listener={dailySalesChart.animation}
+                  options={revisedMonthlyTimesheets.options}
+                  listener={revisedMonthlyTimesheets.animation}
                 />{" "}
-              </CardHeader>{" "}
-              <CardBody>
-                <h4 className={classes.cardTitle}> This month </h4>{" "}
-                <p className={classes.cardCategory}>
-                  <span className={classes.successText}>
-                    <ArrowUpward className={classes.upArrowCardCategory} /> 55%{" "}
-                  </span>{" "}
-                  increase in today sales.{" "}
-                </p>{" "}
-              </CardBody>{" "}
+              </CardHeader>
+              {" "}
+              {this.compareWithLastMonth(totalThisMonth, totalLastMonth, classes)}
             </Card>{" "}
           </GridItem>{" "}
           <GridItem xs={12} sm={12} md={4}>
@@ -290,13 +382,7 @@ class Dashboard extends Component {
                   listener={emailsSubscriptionChart.animation}
                 />{" "}
               </CardHeader>{" "}
-              <CardBody>
-                <h4 className={classes.cardTitle}> Year to date </h4>{" "}
-                <p className={classes.cardCategory}>
-                  {" "}
-                  Last Campaign Performance{" "}
-                </p>{" "}
-              </CardBody>{" "}
+              {this.compareWithLastYear(totalThisYear, totalLastYear, classes)}
             </Card>{" "}
           </GridItem>{" "}
           <GridItem xs={12} sm={12} md={12}>
@@ -320,8 +406,8 @@ class Dashboard extends Component {
               </CardBody>{" "}
             </Card>{" "}
           </GridItem>{" "}
-        </GridContainer>{" "}
-        <GridContainer>
+        </GridContainer > {" "}
+        < GridContainer >
           <GridItem xs={12} sm={12} md={6}>
             <CustomTabs
               title="Tasks:"
@@ -360,7 +446,7 @@ class Dashboard extends Component {
           <GridItem xs={12} sm={12} md={6}>
             <LatestItems data={latestItems}> </LatestItems>{" "}
           </GridItem>{" "}
-        </GridContainer>{" "}
+        </GridContainer > {" "}
       </div >
     );
   }
