@@ -91,8 +91,8 @@ export function getWeeklyStats() {
 
             const overtimeSeries = _(labels)
                 .chain()
-                .map((x, i) => {
-                    const overtimeForThisDay = _(overtime).filter(y => y.date.setHours(0) - x.setHours(0) === 0).first();
+                .map((x, i) => {                    
+                    const overtimeForThisDay = _(overtime).filter(y => y.date && y.date.setHours(0) - x.setHours(0) === 0).first();
                     return (workedSeries[i] || 0) + (overtimeForThisDay && overtimeForThisDay.overtime || 0);
                 })
                 .flatten()
@@ -161,7 +161,7 @@ export function getMonthlyStats() {
             const overtimeSeries = _(labels)
                 .chain()
                 .map((x, i) => {
-                    const overtimeForThisDay = _(overtime).filter(y => y.date.getDate() === x).first();
+                    const overtimeForThisDay = _(overtime).filter(y => y.date && y.date.getDate() === x).first();
                     return parseFloat((workedSeries[i] || 0) + (overtimeForThisDay && overtimeForThisDay.overtime || 0));
                 })
                 .flatten()
