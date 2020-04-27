@@ -1,40 +1,46 @@
 # Toggl Overtime Tracker
 
-## Table of Contents
+[![CircleCI](https://circleci.com/gh/hbulens/overtime-tracker.svg?style=svg&circle-token=ad91b49cebeddb9dcfa2aa2fc3baac11d22df82d)](https://circleci.com/gh/hbulens/overtime-tracker)
 
-- [Toggl Overtime Tracker](#toggl-overtime-tracker)
-  - [Table of Contents](#table-of-contents)
-  - [Quick start](#quick-start)
-  - [Documentation](#documentation)
-  - [File Structure](#file-structure)
-  - [Resources](#resources)
-  - [Reporting Issues](#reporting-issues)
-  - [Technical Support or Questions](#technical-support-or-questions)
-  - [Licensing](#licensing)
-  - [Useful Links](#useful-links)
+The Toggl Overtime Tracker is a simple management application which enables you to manage your overtime using the time registrations you've made in Toggl.
 
-## Quick start
+![App dashboard](docs/overtime-tracker.png)
 
-## Documentation
+## Installation
 
-## File Structure
+Use yarn to install the required packages to run the overtime tracker:
 
-## Resources
+`yarn install`
 
-## Reporting Issues
+## Usage
 
-We use GitHub Issues as the official bug tracker for the Toggl Overtime Tracker. Here are some advices for our users that want to report an issue:
+To run the application locally, execute `yarn start`.
 
-1. Make sure that you are using the latest version of the Toggl Overtime Tracker. Check the CHANGELOG from your dashboard.
-2. Providing us reproducible steps for the issue will shorten the time it takes for it to be fixed.
-3. Some issues may be browser specific, so specifying in what browser you encountered the issue might help.
+Two pieces of information are required:
 
-## Technical Support or Questions
+- Toggl API key
+- Workspace ID
 
-If you have questions or need help integrating the product please open an issue.
+To retrieve the Toggl, go to the app and navigate to the profile settings. Near the bottom of the page, you'll find an API token section. Copy the value and paste it 
 
-## Licensing
+![Settings](docs/settings.png)
 
-- Copyright 2020 Hendrik Bulens
+The workspace is the container that holds projects, time entries, clients, etc. To import the data from Toggl API, we need the workspace as well.
 
-## Useful Links
+If you navigate to one of the sections mentioned above, you'll find the workspace id in the path: `https://toggl.com/app/projects/{{WORKSPACE_ID}}/list`.
+
+## Deployment
+
+To deploy the web application, run `yarn build`.
+
+To run the application as a Windows application (Electron), run `yarn package-win`. After the script has completed, a MSI file `Toggl Overtime Tracker {MAJOR_VERSION}.{MINOR VERSION}.{REVISION}.msi` will be available under the dist folder.
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)

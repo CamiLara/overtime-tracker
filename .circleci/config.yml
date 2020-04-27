@@ -1,0 +1,12 @@
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/overtime-tracker/src
+    docker:
+      - image: circleci/node:10-browsers
+    steps:
+      - checkout:
+            path: ~/overtime-tracker
+      - run:
+          name: Install
+          command: npm install

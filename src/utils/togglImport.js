@@ -1,6 +1,6 @@
 import _ from 'lodash';
+import settingService from '../views/Settings/settings';
 import togglClient from './togglClient';
-import settingService from '../views/UserProfile/settings';
 
 // Type 3: Persistent datastore with automatic loading
 var Datastore = require('nedb');

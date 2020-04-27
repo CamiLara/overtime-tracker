@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import togglClient from './togglClient';
 import moment from 'moment';
 import overtimeHelper from 'utils/overtimeHelper';
 

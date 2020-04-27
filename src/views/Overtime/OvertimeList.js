@@ -1,26 +1,16 @@
-import React, { Component } from "react";
-import MaterialTable from 'material-table';
 import Button from '@material-ui/core/Button';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+import { green } from '@material-ui/core/colors';
+import { withStyles } from "@material-ui/core/styles";
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
-import DialogTitle from '@material-ui/core/DialogTitle';
-import CardActions from '@material-ui/core/CardActions';
-
-import OvertimeHelper from 'utils/overtimeHelper';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { green, red } from '@material-ui/core/colors';
-import moment from 'moment';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Box from '@material-ui/core/Box';
-import GridItem from "components/Grid/GridItem.js";
-import GridContainer from "components/Grid/GridContainer.js";
-import CustomInput from "components/CustomInput/CustomInput.js";
 import Card from "components/Card/Card.js";
-import CardHeader from "components/Card/CardHeader.js";
-import CardAvatar from "components/Card/CardAvatar.js";
 import CardBody from "components/Card/CardBody.js";
-import CardFooter from "components/Card/CardFooter.js";
+import CardHeader from "components/Card/CardHeader.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import GridItem from "components/Grid/GridItem.js";
+import MaterialTable from 'material-table';
+import moment from 'moment';
+import React, { Component } from "react";
+import OvertimeHelper from 'utils/overtimeHelper';
 
 const newStyles = {
   ...styles,
@@ -204,7 +194,7 @@ class OvertimeList extends Component {
                         new Promise((resolve, reject) => {
                           var me = this;
                           setTimeout(async () => {
-                            {
+                            {                              
                               const togglImport = new OvertimeHelper();
                               await togglImport.remove(oldData);
                               me.setState({ data: await togglImport.get() })

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 var Datastore = require('nedb');
 
 export default class SettingsService {

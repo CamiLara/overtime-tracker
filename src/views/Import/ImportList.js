@@ -1,35 +1,18 @@
-import React, { Component } from "react";
-import MaterialTable from 'material-table';
 import Button from '@material-ui/core/Button';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import { withStyles, makeStyles } from "@material-ui/core/styles";
-import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import { blue } from '@material-ui/core/colors';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
-import Avatar from '@material-ui/core/Avatar';
-import PropTypes from 'prop-types';
-import PersonIcon from '@material-ui/icons/Person';
-import AddIcon from '@material-ui/icons/Add';
-import SimpleDialog from './EntryImportButton';
-import TogglImporter from 'utils/togglImport';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { green, red } from '@material-ui/core/colors';
-import moment from 'moment';
+import { green } from '@material-ui/core/colors';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import GridItem from "components/Grid/GridItem.js";
-import GridContainer from "components/Grid/GridContainer.js";
-import Box from '@material-ui/core/Box';
+import { withStyles } from "@material-ui/core/styles";
+import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 import Card from "components/Card/Card.js";
-import CardHeader from "components/Card/CardHeader.js";
-import CardAvatar from "components/Card/CardAvatar.js";
 import CardBody from "components/Card/CardBody.js";
-import CardFooter from "components/Card/CardFooter.js";
-import CardActions from '@material-ui/core/CardActions';
+import CardHeader from "components/Card/CardHeader.js";
+import GridContainer from "components/Grid/GridContainer.js";
+import GridItem from "components/Grid/GridItem.js";
+import MaterialTable from 'material-table';
+import moment from 'moment';
+import React, { Component } from "react";
+import TogglImporter from 'utils/togglImport';
+import SimpleDialog from './EntryImportButton';
 
 
 const newStyles = {
@@ -74,7 +57,7 @@ class Entry {
   }
 }
 
-class TableList extends Component {
+class ImportList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -210,4 +193,4 @@ class TableList extends Component {
   }
 }
 
-export default withStyles(newStyles)(TableList);
+export default withStyles(newStyles)(ImportList);
