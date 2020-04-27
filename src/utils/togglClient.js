@@ -1,15 +1,8 @@
-import Moment from 'moment';
-import {
-    extendMoment
-} from 'moment-range';
-import {
-    addDays,
-    addMonths,
-    differenceInDays,
-    differenceInMonths
-} from 'date-fns';
-import _ from 'lodash';
 import * as Promise from "bluebird";
+import { addDays, addMonths, differenceInDays, differenceInMonths } from 'date-fns';
+import _ from 'lodash';
+import Moment from 'moment';
+import { extendMoment } from 'moment-range';
 
 const queryString = require('query-string');
 

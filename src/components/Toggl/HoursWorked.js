@@ -1,11 +1,8 @@
-import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import Table from "../Table/Table.js";
-import Card from "../Card/Card.js";
-import CardHeader from "../Card/CardHeader.js";
-import CardBody from "../Card/CardBody.js";
-import _ from 'lodash';
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+import _ from 'lodash';
+import React, { Component } from "react";
+import Table from "../Table/Table.js";
 
 class HoursWorked extends Component {
     formatDate(dateString) {

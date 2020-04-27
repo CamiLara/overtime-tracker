@@ -1,67 +1,36 @@
-import React, { Component } from "react";
-// react plugin for creating charts
-import ChartistGraph from "react-chartist";
-// @material-ui/core
-import { withStyles } from "@material-ui/core/styles";
-import Icon from "@material-ui/core/Icon";
-// @material-ui/icons
-import Store from "@material-ui/icons/Store";
-import Warning from "@material-ui/icons/Warning";
-import DateRange from "@material-ui/icons/DateRange";
-import LocalOffer from "@material-ui/icons/LocalOffer";
-import Update from "@material-ui/icons/Update";
-import ArrowUpward from "@material-ui/icons/ArrowUpward";
-import AccessTime from "@material-ui/icons/AccessTime";
-import Accessibility from "@material-ui/icons/Accessibility";
-import BugReport from "@material-ui/icons/BugReport";
-import Code from "@material-ui/icons/Code";
-import Cloud from "@material-ui/icons/Cloud";
-// core components
-import GridItem from "components/Grid/GridItem.js";
-import GridContainer from "components/Grid/GridContainer.js";
-import Table from "components/Table/Table.js";
-import Tasks from "components/Tasks/Tasks.js";
-import CustomTabs from "components/CustomTabs/CustomTabs.js";
-import Danger from "components/Typography/Danger.js";
-import Card from "components/Card/Card.js";
-import CardHeader from "components/Card/CardHeader.js";
-import CardIcon from "components/Card/CardIcon.js";
-import CardBody from "components/Card/CardBody.js";
-import CardFooter from "components/Card/CardFooter.js";
-import Statistic from "components/Toggl/stats";
-import togglClient from "utils/togglClient";
-import LatestItems from "components/Toggl/LatestItems";
-import HoursWorked from "components/Toggl/HoursWorked";
-import { bugs, website, server } from "variables/general.js";
-import _ from "lodash";
-import {
-  dailyTimesheets,
-  dailySalesChart,
-  emailsSubscriptionChart,
-  completedTasksChart
-} from "variables/charts.js";
-import { getLatestEntries, getMonthlyStats, getAllStats, getYearlyStats, getWeeklyStats } from 'utils/overtimeChartsHelper';
 import Button from '@material-ui/core/Button';
-import Fab from '@material-ui/core/Fab';
-import AddIcon from '@material-ui/icons/Add';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import NavigationIcon from '@material-ui/icons/Navigation';
-import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import Switch from '@material-ui/core/Switch';
+// @material-ui/core
+import { withStyles } from "@material-ui/core/styles";
+import TextField from '@material-ui/core/TextField';
+import AddIcon from '@material-ui/icons/Add';
+import ArrowUpward from "@material-ui/icons/ArrowUpward";
+import WorkIcon from '@material-ui/icons/Work';
+import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+import Card from "components/Card/Card.js";
+import CardBody from "components/Card/CardBody.js";
+import CardHeader from "components/Card/CardHeader.js";
+import CustomTabs from "components/CustomTabs/CustomTabs.js";
+import GridContainer from "components/Grid/GridContainer.js";
+// core components
+import GridItem from "components/Grid/GridItem.js";
+import HoursWorked from "components/Toggl/HoursWorked";
+import LatestItems from "components/Toggl/LatestItems";
+import Statistic from "components/Toggl/stats";
+import _ from "lodash";
 import moment from 'moment';
+import React, { Component } from "react";
+// react plugin for creating charts
+import ChartistGraph from "react-chartist";
+import { getAllStats, getLatestEntries, getMonthlyStats, getWeeklyStats, getYearlyStats } from 'utils/overtimeChartsHelper';
 import overtimeHelper from 'utils/overtimeHelper';
+import { completedTasksChart, dailySalesChart, dailyTimesheets, emailsSubscriptionChart } from "variables/charts.js";
+
 const newStyles = (theme) => {
   return {
     ...styles,
@@ -415,30 +384,8 @@ class Dashboard extends Component {
               tabs={[
                 {
                   tabName: "Hours worked",
-                  tabIcon: BugReport,
+                  tabIcon: WorkIcon,
                   tabContent: <HoursWorked data={latestItems}> </HoursWorked>
-                },
-                {
-                  tabName: "Website",
-                  tabIcon: Code,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[0]}
-                      tasksIndexes={[0, 1]}
-                      tasks={website}
-                    />
-                  )
-                },
-                {
-                  tabName: "Server",
-                  tabIcon: Cloud,
-                  tabContent: (
-                    <Tasks
-                      checkedIndexes={[1]}
-                      tasksIndexes={[0, 1, 2]}
-                      tasks={server}
-                    />
-                  )
                 }
               ]}
             />{" "}

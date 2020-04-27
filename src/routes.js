@@ -1,11 +1,8 @@
 import Dashboard from "@material-ui/icons/Dashboard";
 import DashboardPage from "views/Dashboard/Dashboard.js";
-import UserProfile from "views/UserProfile/UserProfile.js";
-import TableList from "views/TableList/TableList.js";
-import Typography from "views/Typography/Typography.js";
-import Projects from "views/Projects/ProjectList.js";
-import Maps from "views/Maps/Maps.js";
-import NotificationsPage from "views/Notifications/Notifications.js";
+import UserProfile from "views/Settings/UserProfile.js";
+import ImportList from "views/Import/ImportList.js";
+import OvertimeList from "views/Overtime/OvertimeList.js";
 // core components/views for RTL layout
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -23,14 +20,14 @@ const dashboardRoutes = [
     path: "/import",
     name: "Import",
     icon: CloudDownloadIcon,
-    component: TableList,
+    component: ImportList,
     layout: "/"
   },
   {
     path: "/overtime",
     name: "Overtime",
     icon: DateRangeIcon,
-    component: Projects,
+    component: OvertimeList,
     layout: "/"
   },
   {
